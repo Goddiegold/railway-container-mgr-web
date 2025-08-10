@@ -1,34 +1,40 @@
-# -------- Build Stage --------
+# Use the Node alpine official image
+# https://hub.docker.com/_/node
 FROM node:lts-alpine AS build
 
-# Disable npm extra logs
-ENV NPM_CONFIG_UPDATE_NOTIFIER=false \
-    NPM_CONFIG_FUND=false
+# Set config
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+ENV NPM_CONFIG_FUND=false
 
-# Set working directory
+# Create and change to the app directory.
 WORKDIR /app
 
-# Install dependencies first (better caching)
+# Copy the files to the container image
 COPY package*.json ./
+
+# Install packages
 RUN npm ci
 
-# Copy rest of the source code
-COPY . .
+# Copy local code to the container image.
+COPY . ./
 
-# Build Vite app
+# Build the app.
 RUN npm run build
 
-# -------- Serve Stage --------
-FROM caddy:latest
+# Use the Caddy image
+FROM caddy
 
-# Set working directory
+# Create and change to the app directory.
 WORKDIR /app
 
-# Copy Caddyfile
-COPY Caddyfile /etc/caddy/Caddyfile
+# Copy Caddyfile to the container image.
+COPY Caddyfile ./
 
-# Copy built files from build stage
-COPY --from=build /app/dist /usr/share/caddy
+# Copy local code to the container image.
+RUN caddy fmt Caddyfile --overwrite
 
-# Run Caddy
-CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+# Copy files to the container image.
+COPY --from=build /app/dist ./dist
+
+# Use Caddy to run/serve the app
+CMD ["caddy", "run", "--config", "Caddyfile", "--adapter", "caddyfile"]
