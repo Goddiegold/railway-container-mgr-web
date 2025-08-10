@@ -1,5 +1,4 @@
 import axiosInstance from "@/common/utils/axiosInstance";
-import Config from "@/common/utils/config";
 
 
 class ContainerManagerService {
@@ -8,17 +7,24 @@ class ContainerManagerService {
     spinUpContainer = async ({ repo, branch }: { repo?: string, branch?: string }) => {
 
         const requestBody: Record<string, string> = {
-            projectId: Config.RAILWWAY_DEFAULT_PROJECT_ID
         }
 
         if (repo) {
-            requestBody["repo"] = repo;
+            requestBody["repoFullName"] = repo;
             if (branch) requestBody["branchName"] = branch;
         }
         return await axiosInstance.post(`${this.apiPrefix}/spin-up`, requestBody)
     }
+
+    spinDownContainer = async ({ serviceId }: { serviceId: string }) => {
+        return await axiosInstance.delete(`${this.apiPrefix}/spin-down/${serviceId}`)
+    }
+
+    getContainer = async ({ serviceId }: { serviceId: string }) => {
+        return await axiosInstance.get(`${this.apiPrefix}/${serviceId}`)
+    }
 }
-    
+
 
 const containerManagerService = new ContainerManagerService()
 

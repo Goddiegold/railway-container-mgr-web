@@ -1,9 +1,9 @@
 
 import { Container, Flex, Paper, TextInput, Text, Button } from "@mantine/core"
 import { useState } from "react";
-import { GithubLogoIcon, GitBranchIcon } from "@phosphor-icons/react"
+import { GithubLogoIcon, GitBranchIcon, RocketLaunchIcon } from "@phosphor-icons/react"
 import useAPI from "@/common/hooks/useAPI";
-import containerManagerService from "../containerManagerService";
+import containerManagerService from "../service";
 import { getApiErrorMessage, toast } from "@/common/utils/helpers";
 import { useNavigate } from "react-router-dom";
 
@@ -26,11 +26,14 @@ const CreateContainer = () => {
     const handleSpinupContainer = () => {
         execute()
             .then(res => {
+                toast({ message: "Service Created Successfully!" }).success()
                 const service = res?.data?.serviceCreate;
                 if (service) {
                     const seviceId = service?.id;
                     const serviceName = service?.name;
-                    navigate(`/services/${seviceId}`, { state: { serviceName } })
+                    setTimeout(() => {
+                        navigate(`/services/${seviceId}`, { state: { serviceName } })
+                    }, 500)
                 }
             }).catch(e => {
                 const formattedMessage = getApiErrorMessage(e)
@@ -74,9 +77,10 @@ const CreateContainer = () => {
 
                             <Flex justify={"flex-end"}>
                                 <Button
+                                    leftSection={<RocketLaunchIcon size={20} />}
                                     onClick={handleSpinupContainer}
                                     loading={spinningUpContainer}
-                                    w={100}
+                                    miw={120}
                                     radius={"xl"}
                                 >Spin up</Button>
                             </Flex>
