@@ -18,6 +18,9 @@ RUN npm ci
 # Copy local code to the container image.
 COPY . ./
 
+ARG VITE_WEB_SERVER_URL
+
+
 # Build the app.
 RUN npm run build
 
